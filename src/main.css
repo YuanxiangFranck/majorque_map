@@ -1,0 +1,14 @@
+.popup {
+    width: 200px;
+    height: 200px;
+}
+
+.img_frame_container {
+    height: 185px;
+    overflow-y: scroll;
+}
+
+.map-header {
+    width: 500px;
+    height: 200px;
+}
