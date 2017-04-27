@@ -22,7 +22,7 @@ let j1 =  [{pos: [39.545488, 2.632433],
             end_time: "13:37",
             description: "rangement, cuisine, chill et bouffe!"
            },
-           {pos: [39.692522, 2.842178],
+           {pos: [39.928900, 3.110450],
             type: "voie",
             start_time: "14h",
             end_time:"20h",

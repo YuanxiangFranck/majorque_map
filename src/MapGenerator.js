@@ -30,6 +30,7 @@ class MapGenerator {
     constructor(div_id) {
         this.map = L.map(div_id);
         this.map_id = div_id;
+        this.bounds = new L.LatLngBounds();
         L.tileLayer.provider("OpenTopoMap").addTo(this.map);
     }
 
@@ -72,6 +73,11 @@ class MapGenerator {
 
     create_marker(data){
         let marker = new L.Marker(data.pos);
+        if (this.bounds.isValid())
+            this.bounds.extend(data.pos);
+        else
+            this.bounds = new L.LatLngBounds(L.latLng(...data.pos),
+                                             L.latLng(...data.pos));
         let marker_html = `
 <svg class="abc" style="width: 40px; height: 40px">
     <circle cx="20" cy="20" r="19" stroke="#000000" stroke-width="1" opacity="1"/>
@@ -98,9 +104,23 @@ class MapGenerator {
 
     load_day(day_data){
         let road_positions = [];
+        this.bounds = new L.LatLngBounds();
+        let prev_coord = null;
         for (let data of day_data) {
-            this.create_marker(day_data);
+            road_positions.push(data.pos);
+            this.create_marker(data);
         }
+        let routing = L.Routing.control({
+            createMarker: ()=>null,
+            waypoints: road_positions,
+            autoRoute: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            plan: null
+        }).addTo(this.map);
+        routing._container.style.display='none';
+        routing.route();
+        this.map.fitBounds(this.bounds);
     }
 
     initMap(all_data){
