@@ -71,13 +71,15 @@ class MapGenerator {
         legend.addTo(this.map);
     }
 
-    create_marker(data){
+    create_marker(date, data){
         let marker = new L.Marker(data.pos);
         if (this.bounds.isValid())
             this.bounds.extend(data.pos);
         else
             this.bounds = new L.LatLngBounds(L.latLng(...data.pos),
                                              L.latLng(...data.pos));
+        
+        let carouselId = "carousel-"+date[1];
         let marker_html = `
 <svg class="abc" style="width: 40px; height: 40px">
     <circle cx="20" cy="20" r="19" stroke="#000000" stroke-width="1" opacity="1"/>
@@ -90,25 +92,52 @@ class MapGenerator {
         let imgs_html = "";
         let image_path = data.image_path;
         if (image_path == undefined) image_path = [];
-        for (let img_name of image_path) {
-            imgs_html += '<div><img width="185" height="185" src="'+data.dir_path+img_name+'"></div>';
+        // Indicators
+        imgs_html += "<div class='carousel-indicators'>";
+        for (let i=0;i<image_path.length;i++) {
+            imgs_html += `<li data-target='#${carouselId}' data-slide-to='${i}' ${i?'':'class="active"'}></li>`;
         }
+        imgs_html += '</div>';
+        // slides warpper
+        imgs_html += "<div class='carousel-inner' role='listbox'>";
+        for (let i=0;i<image_path.length;i++){
+            let img_name = image_path[i];
+            imgs_html += `
+    <div class="item ${i?'':'active'}">
+      <img src="${data.dir_path+img_name}" alt="...">
+      <div class="carousel-caption">
+        ...
+      </div>
+    </div>`;
+        }
+        imgs_html += "</div>";
+        // Controles
+        imgs_html += `
+  <a class="left carousel-control" href="#${carouselId}" role="button" data-slide="prev">
+    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="right carousel-control" href="#${carouselId}" role="button" data-slide="next">
+    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>`;
+        imgs_html += '</div>';
         let popupContent = `
 <div class="popup">
-    <div class="event_title" style="background-color: ">`+data.description+`</div>
-    <div class="img_frame_container">`+imgs_html+`</div>
+    <div class="event_title" style="background-color: ">${data.description}</div>
+    <div id="${carouselId}" class="carousel slide img_frame_container">${imgs_html}</div>
 </div>`;
         marker.bindPopup(popupContent);
         marker.addTo(this.map);
     }
 
-    load_day(day_data){
+    load_day(date, day_data){
         let road_positions = [];
         this.bounds = new L.LatLngBounds();
         let prev_coord = null;
         for (let data of day_data) {
             road_positions.push(data.pos);
-            this.create_marker(data);
+            this.create_marker(date, data);
         }
         let routing = L.Routing.control({
             createMarker: ()=>null,
@@ -124,7 +153,11 @@ class MapGenerator {
     }
 
     initMap(all_data){
-        this.load_day(Object.values(all_data)[0]);
+        this.load_day(...Object.entries(all_data)[0]);
+    }
+
+    createCarousel(){
+        creat
     }
 };
 
