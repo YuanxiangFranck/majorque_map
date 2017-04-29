@@ -32,6 +32,7 @@ class MapGenerator {
         this.map_id = div_id;
         this.bounds = new L.LatLngBounds();
         L.tileLayer.provider("OpenTopoMap").addTo(this.map);
+        this.nb_carousel = 0;
     }
 
     create_map_interface(){
@@ -79,7 +80,8 @@ class MapGenerator {
             this.bounds = new L.LatLngBounds(L.latLng(...data.pos),
                                              L.latLng(...data.pos));
         
-        let carouselId = "carousel-"+date[1];
+        let carouselId = "carousel-"+String(this.nb_carousel);
+        this.nb_carousel += 1;
         let marker_html = `
 <svg class="abc" style="width: 40px; height: 40px">
     <circle cx="20" cy="20" r="19" stroke="#000000" stroke-width="1" opacity="1"/>
@@ -128,7 +130,8 @@ class MapGenerator {
     <div id="${carouselId}" class="carousel slide img_frame_container">${imgs_html}</div>
 </div>`;
         marker.bindPopup(popupContent);
-        marker.addTo(this.map);
+        data.show = data.show == null? true: false;
+        if (data.show) marker.addTo(this.map);
     }
 
     load_day(date, day_data){
